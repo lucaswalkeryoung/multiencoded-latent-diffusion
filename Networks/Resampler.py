@@ -37,4 +37,4 @@ class Resampler(nn.Module):
         mu = self.mu(x)
         lv = self.lv(x)
 
-        return self.reparameterize(mu, log_var), mu, lv
+        return self.reparameterize(mu, lv), mu, lv
