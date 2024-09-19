@@ -72,6 +72,8 @@ if __name__ == '__main__':
 
         for index, (batch, label) in enumerate(loader):
 
+            print(f'[{index + 1}] Starting...')
+
             batch = batch.to(device)
             optimizer.zero_grad()
 

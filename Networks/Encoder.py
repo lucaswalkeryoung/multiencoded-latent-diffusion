@@ -49,16 +49,18 @@ class Encoder(nn.Module):
     # ----------------------------------------------------------------------------------------------
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
-        x = self.pool(self.relu(self.norm01(self.conv01(x))))
-        x = self.pool(self.relu(self.norm02(self.conv02(x))))
+        x = self.pool(self.relu(self.norm01(self.conv01(x)))) # 1024 -> 512
+        x = self.pool(self.relu(self.norm02(self.conv02(x)))) # 512  -> 256
 
-        x = self.pool(self.relu(self.norm03(self.conv03(x))))
-        x = self.pool(self.relu(self.norm04(self.conv04(x))))
+        x = self.pool(self.relu(self.norm03(self.conv03(x)))) # 256 -> 128
+        x = self.pool(self.relu(self.norm04(self.conv04(x)))) # 128 -> 64
 
-        x = self.pool(self.relu(self.norm05(self.conv05(x))))
-        x = self.pool(self.relu(self.norm06(self.conv06(x))))
+        x = self.pool(self.relu(self.norm05(self.conv05(x)))) # 64 -> 32
+        x = self.pool(self.relu(self.norm06(self.conv06(x)))) # 32 -> 16
 
-        x = self.pool(self.relu(self.norm07(self.conv07(x))))
-        x = self.pool(self.relu(self.norm08(self.conv08(x))))
+        x = self.pool(self.relu(self.norm07(self.conv07(x)))) # 16 -> 8
+        x = self.relu(self.norm08(self.conv08(x)))
+
+        print(f'Encoder output shape: {x.shape}')
 
         return x
