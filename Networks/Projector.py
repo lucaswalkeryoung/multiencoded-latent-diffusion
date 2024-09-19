@@ -16,7 +16,7 @@ class Projector(nn.Module):
     def __init__(self) -> None:
         super(Projector, self).__init__()
 
-        projected = 128 * 128 * 1024
+        projected = 8 * 8 * 1024
 
         num00 = int(projected / (4 ** 4))
         num01 = int(projected / (4 ** 3))

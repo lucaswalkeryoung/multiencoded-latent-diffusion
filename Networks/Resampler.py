@@ -13,11 +13,11 @@ class Resampler(nn.Module):
     # ----------------------------------------------------------------------------------------------
     # --------------------------------- CONSTRUCTOR :: Constructor ---------------------------------
     # ----------------------------------------------------------------------------------------------
-    def __init__(self, input_size, latent_size) -> None:
+    def __init__(self) -> None:
         super(Resampler, self).__init__()
 
-        self.mu_layer = nn.Linear(input_size, latent_size)
-        self.log_var_layer = nn.Linear(input_size, latent_size)
+        self.mu_layer = nn.Linear(8 * 8 * 1024, 4096)
+        self.log_var_layer = nn.Linear(8 * 8 * 1024, 4096)
 
 
     # ----------------------------------------------------------------------------------------------

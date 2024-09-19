@@ -16,7 +16,7 @@ class Flattener(nn.Module):
     def __init__(self) -> None:
         super(Flattener, self).__init__()
 
-        flattened = 128 * 128 * 1024
+        flattened = 8 * 8 * 1024
 
         num00 = int(flattened)
         num01 = int(flattened / (4 ** 1))
