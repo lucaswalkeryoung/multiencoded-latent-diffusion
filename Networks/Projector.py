@@ -22,7 +22,7 @@ class Projector(nn.Module):
         num01 = int(projected / (2 ** 3)) # 8096
         num02 = int(projected / (2 ** 2)) # 16384
         num03 = int(projected / (2 ** 1)) # 32768
-        num04 = int(projected)
+        num04 = int(projected)            # 65536
 
         self.flat01  = nn.Linear(num00, num01)
         self.flat02  = nn.Linear(num01, num02)
@@ -42,6 +42,6 @@ class Projector(nn.Module):
         x = self.relu00(self.flat03(x))
         x = self.flat04(x)
 
-        x = x.view(-1, 1024, 128, 128)
+        x = x.view(-1, 1024, 8, 8)
 
         return x

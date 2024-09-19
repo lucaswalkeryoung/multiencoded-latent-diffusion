@@ -21,7 +21,7 @@ class Flattener(nn.Module):
         num00 = int(flattened)            # 65536
         num01 = int(flattened / (2 ** 1)) # 32768
         num02 = int(flattened / (2 ** 2)) # 16384
-        num03 = int(flattened / (2 ** 3)) # 8192
+        num03 = int(flattened / (2 ** 3)) # 8096
         num04 = int(flattened / (2 ** 4)) # 4096
 
         self.flatten = nn.Flatten()
