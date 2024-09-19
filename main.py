@@ -81,9 +81,9 @@ if __name__ == '__main__':
 
             encoded   = encoder(batch)
             flattened = flattener(encoded)
-
             resampled, mu, var = resampler(flattened)
             projected = projector(resampled)
+            print(f"Projected shape (after unflattening): {projected.shape}")
             decoded   = decoder(projected)
 
             recon_loss = criterion(decoded, batch)
