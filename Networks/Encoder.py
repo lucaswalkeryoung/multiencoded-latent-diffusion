@@ -61,6 +61,4 @@ class Encoder(nn.Module):
         x = self.pool(self.relu(self.norm07(self.conv07(x)))) # 16 -> 8
         x = self.relu(self.norm08(self.conv08(x)))
 
-        print(f'Encoder output shape: {x.shape}')
-
         return x

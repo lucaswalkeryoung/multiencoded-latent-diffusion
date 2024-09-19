@@ -26,6 +26,8 @@ epochs        = 8
 batch_size    = 2
 
 transform = transforms.Compose([
+    transforms.Resize(1024),
+    transforms.CenterCrop(1024),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])

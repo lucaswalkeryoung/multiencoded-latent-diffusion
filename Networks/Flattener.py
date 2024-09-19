@@ -18,10 +18,10 @@ class Flattener(nn.Module):
 
         flattened = 8 * 8 * 1024 # 65536
 
-        num00 = int(flattened)
+        num00 = int(flattened)            # 65536
         num01 = int(flattened / (2 ** 1)) # 32768
         num02 = int(flattened / (2 ** 2)) # 16384
-        num03 = int(flattened / (2 ** 3)) # 8096
+        num03 = int(flattened / (2 ** 3)) # 8192
         num04 = int(flattened / (2 ** 4)) # 4096
 
         self.flatten = nn.Flatten()
@@ -38,7 +38,11 @@ class Flattener(nn.Module):
     # ----------------------------------------------------------------------------------------------
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
+        print(f'Encoded shape: {x.shape}')
+
         x = self.flatten(x)
+
+        print(f'Flattened shape: {x.shape}')
 
         x = self.relu(self.flat01(x))
         x = self.relu(self.flat02(x))
