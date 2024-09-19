@@ -36,12 +36,18 @@ class Projector(nn.Module):
     # ------------------------------- METHOD :: Forward Propagation --------------------------------
     # ----------------------------------------------------------------------------------------------
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        print(f"Shape before projection layers: {x.shape}")
 
         x = self.relu00(self.flat01(x))
         x = self.relu00(self.flat02(x))
         x = self.relu00(self.flat03(x))
         x = self.flat04(x)
 
+        print(f"Shape after dense layers, before unflattening: {x.shape}")
+
         x = x.view(-1, 1024, 8, 8)
+
+        # Print shape after unflattening
+        print(f"Shape after unflattening: {x.shape}")
 
         return x
