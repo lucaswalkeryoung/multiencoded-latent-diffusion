@@ -16,10 +16,32 @@ class Projector(nn.Module):
     def __init__(self) -> None:
         super(Projector, self).__init__()
 
-        projected = 128 * 128 * 2048
+        projected = 128 * 128 * 1024
 
-        self.project = nn.Flatten()
-        self.flat01  = nn.Linear(256, 512)
-        self.flat02  = nn.Linear(512, 1024)
-        self.flat03  = nn.Linear(1024, 2048)
-        self.flat04  = nn.Linear(2048, projected)
+        num00 = int(projected / (4 ** 4))
+        num01 = int(projected / (4 ** 3))
+        num02 = int(projected / (4 ** 2))
+        num03 = int(projected / (4 ** 1))
+        num04 = int(projected)
+
+        self.flat01  = nn.Linear(num00, num01)
+        self.flat02  = nn.Linear(num01, num02)
+        self.flat03  = nn.Linear(num02, num03)
+        self.flat04  = nn.Linear(num03, num04)
+
+        self.relu00 = nn.ReLU(inplace=True)
+
+
+    # ----------------------------------------------------------------------------------------------
+    # ------------------------------- METHOD :: Forward Propagation --------------------------------
+    # ----------------------------------------------------------------------------------------------
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+
+        x = self.relu00(self.flat01(x))
+        x = self.relu00(self.flat02(x))
+        x = self.relu00(self.flat03(x))
+        x = self.flat04(x)
+
+        x = x.view(-1, 1024, 128, 128)
+
+        return x

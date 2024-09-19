@@ -16,10 +16,33 @@ class Flattener(nn.Module):
     def __init__(self) -> None:
         super(Flattener, self).__init__()
 
-        flattened = 128 * 128 * 2048
+        flattened = 128 * 128 * 1024
+
+        num00 = int(flattened)
+        num01 = int(flattened / (4 ** 1))
+        num02 = int(flattened / (4 ** 2))
+        num03 = int(flattened / (4 ** 3))
+        num04 = int(flattened / (4 ** 4))
 
         self.flatten = nn.Flatten()
-        self.flat01  = nn.Linear(flattened, 2048)
-        self.flat02  = nn.Linear(2048, 1024)
-        self.flat03  = nn.Linear(1024, 512)
-        self.flat04  = nn.Linear(512, 256)
+        self.flat01  = nn.Linear(num00, num01)
+        self.flat02  = nn.Linear(num01, num02)
+        self.flat03  = nn.Linear(num02, num03)
+        self.flat04  = nn.Linear(num03, num04)
+
+        self.relu00 = nn.ReLU(inplace=True)
+
+
+    # ----------------------------------------------------------------------------------------------
+    # ------------------------------- METHOD :: Forward Propagation --------------------------------
+    # ----------------------------------------------------------------------------------------------
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+
+        x = self.flatten(x)
+
+        x = self.relu00(self.flat01(x))
+        x = self.relu00(self.flat02(x))
+        x = self.relu00(self.flat03(x))
+        x = self.flat04(x)
+
+        return x

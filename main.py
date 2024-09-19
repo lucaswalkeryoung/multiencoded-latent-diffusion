@@ -9,12 +9,11 @@ import torch.optim as optim
 import torch.nn as nn
 import torch
 
+from Networks.Flattener import Flattener
+from Networks.Resampler import Resampler
+from Networks.Projector import Projector
 from Networks.Encoder import Encoder
 from Networks.Decoder import Decoder
-from Transforms.RCrop import RCrop
-from Loaders.Loader   import Loader
-
-import os
 
 
 # --------------------------------------------------------------------------------------------------
@@ -34,6 +33,18 @@ transform = transforms.Compose([
 # --------------------------------------------------------------------------------------------------
 # -------------------------------- Initialize the Models and Tools ---------------------------------
 # --------------------------------------------------------------------------------------------------
+flattener = Flattener()
+flattener = flattener.to(device)
+flattener.train(True)
+
+resampler = Encoder()
+resampler = resampler.to(device)
+resampler.train(True)
+
+projector = Decoder()
+projector = projector.to(device)
+projector.train(True)
+
 encoder = Encoder()
 encoder = encoder.to(device)
 encoder.train(True)
@@ -50,24 +61,36 @@ loader  = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0
 optimizer = optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=learning_rate)
 
 
-# # --------------------------------------------------------------------------------------------------
-# # --------------------------------------------- Train ----------------------------------------------
-# # --------------------------------------------------------------------------------------------------
-# if __name__ == '__main__':
-#
-#     for epoch in range(epochs):
-#
-#         for index, batch in enumerate(dataset):
-#
-#             batch = batch.to(device)
-#             optimizer.zero_grad()
-#
-#             encoded = encoder(batch)
-#             decoded = decoder(encoded)
-#
-#             loss = criterion(decoded, batch)
-#             loss.backward()
-#
-#             optimizer.step()
-#
-#             print(f'[{index + 1}] Loss: {loss.item():.4f}')
+# --------------------------------------------------------------------------------------------------
+# --------------------------------------------- Train ----------------------------------------------
+# --------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+
+    for epoch in range(epochs):
+
+        running_loss = 0.0
+
+        for index, (batch, label) in enumerate(loader):
+
+            batch = batch.to(device)
+            optimizer.zero_grad()
+
+            encoded   = encoder(batch)
+            flattened = flattener(encoded)
+            resampled, mu, var = resampler(flattened)
+            projected = projector(resampled)
+            decoded   = decoder(projected)
+
+            recon_loss = criterion(decoded, batch)
+            kl_loss = -0.5 * torch.sum(1 + var - mu.pow(2) - var.exp())  # KL Divergence
+            loss = recon_loss + kl_loss
+            running_loss += loss.item()
+
+            loss.backward()
+
+            optimizer.step()
+
+            if not index % 8:
+                print(f'[{index + 1}] Loss: {loss.item():.4f}')
+
+        running_loss = 0
