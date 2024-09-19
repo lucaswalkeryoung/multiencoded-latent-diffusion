@@ -81,6 +81,7 @@ if __name__ == '__main__':
 
             encoded   = encoder(batch)
             flattened = flattener(encoded)
+            print(f"Flattened shape: {flattened.shape}")  # Add this line to check the shape
             resampled, mu, var = resampler(flattened)
             projected = projector(resampled)
             decoded   = decoder(projected)

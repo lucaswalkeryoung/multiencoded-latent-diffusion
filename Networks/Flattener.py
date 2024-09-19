@@ -38,11 +38,7 @@ class Flattener(nn.Module):
     # ----------------------------------------------------------------------------------------------
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
-        print(f'Encoded shape: {x.shape}')
-
         x = self.flatten(x)
-
-        print(f'Flattened shape: {x.shape}')
 
         x = self.relu(self.flat01(x))
         x = self.relu(self.flat02(x))
