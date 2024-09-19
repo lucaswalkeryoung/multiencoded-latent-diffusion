@@ -16,12 +16,12 @@ class Projector(nn.Module):
     def __init__(self) -> None:
         super(Projector, self).__init__()
 
-        projected = 8 * 8 * 1024
+        projected = 8 * 8 * 1024 # 65536
 
-        num00 = int(projected / (4 ** 4))
-        num01 = int(projected / (4 ** 3))
-        num02 = int(projected / (4 ** 2))
-        num03 = int(projected / (4 ** 1))
+        num00 = int(projected / (2 ** 4)) # 4096
+        num01 = int(projected / (2 ** 3)) # 8096
+        num02 = int(projected / (2 ** 2)) # 16384
+        num03 = int(projected / (2 ** 1)) # 32768
         num04 = int(projected)
 
         self.flat01  = nn.Linear(num00, num01)

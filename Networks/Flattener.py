@@ -16,13 +16,13 @@ class Flattener(nn.Module):
     def __init__(self) -> None:
         super(Flattener, self).__init__()
 
-        flattened = 8 * 8 * 1024
+        flattened = 8 * 8 * 1024 # 65536
 
         num00 = int(flattened)
-        num01 = int(flattened / (4 ** 1))
-        num02 = int(flattened / (4 ** 2))
-        num03 = int(flattened / (4 ** 3))
-        num04 = int(flattened / (4 ** 4))
+        num01 = int(flattened / (2 ** 1)) # 32768
+        num02 = int(flattened / (2 ** 2)) # 16384
+        num03 = int(flattened / (2 ** 3)) # 8096
+        num04 = int(flattened / (2 ** 4)) # 4096
 
         self.flatten = nn.Flatten()
         self.flat01  = nn.Linear(num00, num01)
@@ -30,7 +30,7 @@ class Flattener(nn.Module):
         self.flat03  = nn.Linear(num02, num03)
         self.flat04  = nn.Linear(num03, num04)
 
-        self.relu00 = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=True)
 
 
     # ----------------------------------------------------------------------------------------------
@@ -40,9 +40,9 @@ class Flattener(nn.Module):
 
         x = self.flatten(x)
 
-        x = self.relu00(self.flat01(x))
-        x = self.relu00(self.flat02(x))
-        x = self.relu00(self.flat03(x))
+        x = self.relu(self.flat01(x))
+        x = self.relu(self.flat02(x))
+        x = self.relu(self.flat03(x))
         x = self.flat04(x)
 
         return x
