@@ -37,7 +37,7 @@ flattener = Flattener()
 flattener = flattener.to(device)
 flattener.train(True)
 
-resampler = Encoder()
+resampler = Resampler()
 resampler = resampler.to(device)
 resampler.train(True)
 
