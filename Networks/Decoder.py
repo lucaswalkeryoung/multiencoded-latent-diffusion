@@ -41,7 +41,6 @@ class Decoder(nn.Module):
         self.norm07 = nn.BatchNorm2d(num_features=8)
 
         self.conv08 = nn.ConvTranspose2d(in_channels=8, out_channels=3, kernel_size=3, padding=1)
-        self.norm08 = nn.BatchNorm2d(num_features=3)
 
 
     # ----------------------------------------------------------------------------------------------
