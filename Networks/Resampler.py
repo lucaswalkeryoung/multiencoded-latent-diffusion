@@ -16,8 +16,8 @@ class Resampler(nn.Module):
     def __init__(self) -> None:
         super(Resampler, self).__init__()
 
-        self.mu_layer = nn.Linear(8 * 8 * 1024, 4096)
-        self.log_var_layer = nn.Linear(8 * 8 * 1024, 4096)
+        self.mu = nn.Linear(4096, 4096)
+        self.lv = nn.Linear(4096, 4096)
 
 
     # ----------------------------------------------------------------------------------------------
@@ -34,8 +34,7 @@ class Resampler(nn.Module):
     # ----------------------------------------------------------------------------------------------
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
-        mu = self.mu_layer(x)
-        log_var = self.log_var_layer(x)
+        mu = self.mu(x)
+        lv = self.lv(x)
 
-        latent_z = self.reparameterize(mu, log_var)
-        return latent_z, mu, log_var
+        return self.reparameterize(mu, log_var), mu, lv
