@@ -24,15 +24,15 @@ class Loader(Dataset):
     def __init__(self, directories: str, transform: typing.Optional[typing.Callable]) -> None:
         super().__init__()
 
-        self.directories = pathlib.Path(directories)
-        self.images = []
+        # self.directories = pathlib.Path(directories)
+        # self.images = []
 
-        for directory in self.directories.iterdir():
-            images = [image for image in directory.rglob('*.png') if not image.name.startswith('.')]
-            images = random.sample(images, min(len(images), 1000))
-            self.images.extend(map(str, images))
-
-        random.shuffle(self.images)
+        # for directory in self.directories.iterdir():
+        #     images = [image for image in directory.rglob('*.png') if not image.name.startswith('.')]
+        #     images = random.sample(images, min(len(images), 1000))
+        #     self.images.extend(map(str, images))
+        #
+        # random.shuffle(self.images)
 
         self.transform = transform or transforms.ToTensor()
 

@@ -20,20 +20,16 @@ import os
 # --------------------------------------------------------------------------------------------------
 # -------------------------------------- Configure the System --------------------------------------
 # --------------------------------------------------------------------------------------------------
-device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
-
-os.environ['PYTORCH_MPS_HIGH_WATERMARK_RATIO'] = '0.0'
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 learning_rate = 1e-4
 epochs        = 8
 batch_size    = 2
 
 transform = transforms.Compose([
-    RCrop(),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
-
 
 # --------------------------------------------------------------------------------------------------
 # -------------------------------- Initialize the Models and Tools ---------------------------------
@@ -48,30 +44,30 @@ decoder.train(True)
 
 criterion = nn.MSELoss()
 
-loader  = Loader('/Volumes/T7/Database', transform=transform)
-dataset = DataLoader(loader, batch_size=batch_size, shuffle=True, num_workers=0)
+dataset = datasets.ImageFolder(root='/content/drive/MyDrive/datasets/dataset', transform=transform)
+loader  = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
 optimizer = optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=learning_rate)
 
 
-# --------------------------------------------------------------------------------------------------
-# --------------------------------------------- Train ----------------------------------------------
-# --------------------------------------------------------------------------------------------------
-if __name__ == '__main__':
-
-    for epoch in range(epochs):
-
-        for index, batch in enumerate(dataset):
-
-            batch = batch.to(device)
-            optimizer.zero_grad()
-
-            encoded = encoder(batch)
-            decoded = decoder(encoded)
-
-            loss = criterion(decoded, batch)
-            loss.backward()
-
-            optimizer.step()
-
-            print(f'[{index + 1}] Loss: {loss.item():.4f}')
+# # --------------------------------------------------------------------------------------------------
+# # --------------------------------------------- Train ----------------------------------------------
+# # --------------------------------------------------------------------------------------------------
+# if __name__ == '__main__':
+#
+#     for epoch in range(epochs):
+#
+#         for index, batch in enumerate(dataset):
+#
+#             batch = batch.to(device)
+#             optimizer.zero_grad()
+#
+#             encoded = encoder(batch)
+#             decoded = decoder(encoded)
+#
+#             loss = criterion(decoded, batch)
+#             loss.backward()
+#
+#             optimizer.step()
+#
+#             print(f'[{index + 1}] Loss: {loss.item():.4f}')
