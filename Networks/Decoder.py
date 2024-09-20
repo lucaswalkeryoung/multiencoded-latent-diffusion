@@ -17,7 +17,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.relu = nn.ReLU(inplace=True)
-        self.pool = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+        self.pool = nn.PixelShuffle(2)
 
         self.conv01 = nn.ConvTranspose2d(in_channels=1024, out_channels=512, kernel_size=3, padding=1)
         self.norm01 = nn.BatchNorm2d(num_features=512)
