@@ -12,6 +12,7 @@ import torch
 from PIL import Image
 
 import os
+import uuid
 
 from Networks.Flattener import Flattener
 from Networks.Resampler import Resampler
@@ -97,5 +98,20 @@ if __name__ == '__main__':
             optimizer.step()
 
             print(f'[{index + 1}] Loss: {loss.item():.4f}')
+
+            for i in range(batch.size(0)):
+
+                source_image = reverse_transform(batch[i].cpu())
+                target_image = reverse_transform(decoded[i].cpu())
+                merged_image = Image.new('RGB', (2048, 1024))
+
+                combined_image.paste(original_image, (0, 0))
+                combined_image.paste(recreated_image, (1024, 0))
+
+
+
+                combined_image.save(f'output_epoch_{epoch}_index_{index}_img_{i}.png')
+
+
 
         running_loss = 0
