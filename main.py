@@ -95,7 +95,7 @@ decoder.train(True)
 print(f"Decoder compiled")
 
 if device.type == 'cuda':
-    scaler = GradScaler()
+    scaler = GradScaler('cuda')
     print(f"Scaler compiled")
 
 criterion = nn.MSELoss()
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
             if device.type == 'cuda':
 
-                with autocast():
+                with autocast('cuda'):
 
                     encoded = encoder(batch)
                     print_memory_usage('Encoded')
