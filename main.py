@@ -9,6 +9,10 @@ import torch.optim as optim
 import torch.nn as nn
 import torch
 
+from PIL import Image
+
+import os
+
 from Networks.Flattener import Flattener
 from Networks.Resampler import Resampler
 from Networks.Projector import Projector
@@ -19,7 +23,7 @@ from Networks.Decoder import Decoder
 # --------------------------------------------------------------------------------------------------
 # -------------------------------------- Configure the System --------------------------------------
 # --------------------------------------------------------------------------------------------------
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 
 learning_rate = 1e-4
 epochs        = 8
@@ -32,6 +36,7 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
+
 # --------------------------------------------------------------------------------------------------
 # -------------------------------- Initialize the Models and Tools ---------------------------------
 # --------------------------------------------------------------------------------------------------
@@ -43,7 +48,7 @@ resampler = Resampler()
 resampler = resampler.to(device)
 resampler.train(True)
 
-projector = Decoder()
+projector = Projector()
 projector = projector.to(device)
 projector.train(True)
 
@@ -74,17 +79,14 @@ if __name__ == '__main__':
 
         for index, (batch, label) in enumerate(loader):
 
-            print(f'[{index + 1}] Starting...')
-
             batch = batch.to(device)
             optimizer.zero_grad()
 
-            encoded   = encoder(batch)
+            encoded = encoder(batch)
             flattened = flattener(encoded)
             resampled, mu, var = resampler(flattened)
             projected = projector(resampled)
-            print(f"Projected shape (after unflattening): {projected.shape}")
-            decoded   = decoder(projected)
+            decoded = decoder(projected)
 
             recon_loss = criterion(decoded, batch)
             kl_loss = -0.5 * torch.sum(1 + var - mu.pow(2) - var.exp())  # KL Divergence
@@ -92,10 +94,8 @@ if __name__ == '__main__':
             running_loss += loss.item()
 
             loss.backward()
-
             optimizer.step()
 
-            if not index % 8:
-                print(f'[{index + 1}] Loss: {loss.item():.4f}')
+            print(f'[{index + 1}] Loss: {loss.item():.4f}')
 
         running_loss = 0
