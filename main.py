@@ -30,7 +30,9 @@ from Networks.Decoder import Decoder
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 print(f"Device set to {'cuda' if torch.cuda.is_available() else 'mps'}")
 
-if device.type == 'mps':
+if device.type == 'cuda':
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+else:
     os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
 
 learning_rate = 1e-4
