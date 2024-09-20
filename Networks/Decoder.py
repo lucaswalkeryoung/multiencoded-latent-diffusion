@@ -17,7 +17,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.relu = nn.ReLU(inplace=True)
-        self.pool = nn.Upsample(scale_factor=2, mode='nearest')
+        self.pool = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
         self.conv01 = nn.ConvTranspose2d(in_channels=1024, out_channels=512, kernel_size=3, padding=1)
         self.norm01 = nn.BatchNorm2d(num_features=512)
@@ -48,15 +48,23 @@ class Decoder(nn.Module):
     # ----------------------------------------------------------------------------------------------
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
-        x = self.pool(self.relu(self.norm01(self.conv01(x))))
-        x = self.pool(self.relu(self.norm02(self.conv02(x))))
+        # x = self.pool(self.relu(self.norm01(self.conv01(x))))
+        # x = self.pool(self.relu(self.norm02(self.conv02(x))))
+        #
+        # x = self.pool(self.relu(self.norm03(self.conv03(x))))
+        # x = self.pool(self.relu(self.norm04(self.conv04(x))))
+        #
+        # x = self.pool(self.relu(self.norm05(self.conv05(x))))
+        # x = self.pool(self.relu(self.norm06(self.conv06(x))))
+        #
+        # x = self.pool(self.relu(self.norm07(self.conv07(x))))
 
-        x = self.pool(self.relu(self.norm03(self.conv03(x))))
-        x = self.pool(self.relu(self.norm04(self.conv04(x))))
-
-        x = self.pool(self.relu(self.norm05(self.conv05(x))))
-        x = self.pool(self.relu(self.norm06(self.conv06(x))))
-
-        x = self.pool(self.relu(self.norm07(self.conv07(x))))
+        x = self.pool(self.relu(self.conv01(x)))
+        x = self.pool(self.relu(self.conv02(x)))
+        x = self.pool(self.relu(self.conv03(x)))
+        x = self.pool(self.relu(self.conv04(x)))
+        x = self.pool(self.relu(self.conv05(x)))
+        x = self.pool(self.relu(self.conv06(x)))
+        x = self.pool(self.relu(self.conv07(x)))
 
         return self.conv08(x)
