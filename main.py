@@ -93,7 +93,7 @@ decoder.train(True)
 print(f"Decoder compiled")
 
 if device.type == 'cuda':
-    scaler = GradScaler('cuda')
+    scaler = GradScaler()
     print(f"Scaler compiled")
 
 criterion = nn.MSELoss()
