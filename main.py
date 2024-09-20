@@ -35,7 +35,7 @@ if device.type == 'mps':
 
 learning_rate = 1e-4
 epochs        = 8
-batch_size    = 2
+batch_size    = 1
 print(f"Learning Rate: {learning_rate}")
 print(f"Epochs: {epochs}")
 print(f"Batch Size: {batch_size}")
