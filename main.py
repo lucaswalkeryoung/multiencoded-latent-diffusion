@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
             print(f'[{index + 1}] Loss: {loss.item():.4f}')
 
-            for i in range(batch.size(0)):
+            for image in range(batch.size(0)):
 
                 source_image = reverse_transform(batch[i].cpu())
                 target_image = reverse_transform(decoded[i].cpu())
@@ -108,10 +108,8 @@ if __name__ == '__main__':
                 combined_image.paste(original_image, (0, 0))
                 combined_image.paste(recreated_image, (1024, 0))
 
-
-
-                combined_image.save(f'output_epoch_{epoch}_index_{index}_img_{i}.png')
-
-
+                combined_image.save(
+                    f'{epoch:06}-{index:06}-{image:06}-{uuid.uuid4().replace("-", "")}.png'
+                )
 
         running_loss = 0
