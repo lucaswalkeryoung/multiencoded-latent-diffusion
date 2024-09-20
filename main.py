@@ -30,6 +30,9 @@ from Networks.Decoder import Decoder
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
 print(f"Device set to {'cuda' if torch.cuda.is_available() else 'mps'}")
 
+if device.type == 'mps':
+    os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
+
 learning_rate = 1e-4
 epochs        = 8
 batch_size    = 2
@@ -52,6 +55,13 @@ reversals = transforms.Compose([
 ])
 
 print(f"Reversals compiled: Normalize(), ToPILImage()")
+
+bid = uuid.uuid4().hex
+if device.type == 'cuda':
+    os.mkdir(f'/content/drive/MyDrive/Output/{bid}')
+else:
+    os.mkdir(f'/Users/lucasyoung/Desktop/Art/Output/{bid}')
+print(f"BID: {bid}")
 
 
 # --------------------------------------------------------------------------------------------------
@@ -82,14 +92,20 @@ decoder = decoder.to(device)
 decoder.train(True)
 print(f"Decoder compiled")
 
+if device.type == 'cuda':
+    scaler = GradScaler()
+    print(f"Scaler compiled")
+
 criterion = nn.MSELoss()
-scaler = GradScaler()
-print(f"Criterion compiled: MSELoss")
-print(f"Scaler compiled")
+print(f"Criterion compiled")
 
 print("Collecting dataset...")
-dataset = datasets.ImageFolder(root='/content/drive/MyDrive/datasets/dataset', transform=transform)
+if device.type == 'cuda':
+    dataset = datasets.ImageFolder(root='/content/drive/MyDrive/datasets/dataset', transform=transform)
+else:
+    dataset = datasets.ImageFolder(root='/Users/lucasyoung/Desktop/Art/Stock/txt2img-images/2024-06-22', transform=transform)
 print("Dataset collected")
+
 print("Loading dataset...")
 loader  = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 print("Dataset loaded")
@@ -99,39 +115,86 @@ print(f"Adam compiled")
 
 
 # --------------------------------------------------------------------------------------------------
+# ---------------------------------------- Memory Profiling ----------------------------------------
+# --------------------------------------------------------------------------------------------------
+def print_memory_usage(tag: str):
+
+    if device.type == 'cuda':
+        print(f"[{tag}] Allocated: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
+        print(f"[{tag}] Cached: {torch.cuda.memory_reserved() / 1024**3:.2f} GB")
+
+
+
+# --------------------------------------------------------------------------------------------------
 # --------------------------------------------- Train ----------------------------------------------
 # --------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
     for epoch in range(epochs):
 
-        print(f"Beginning epoch {epoch}")
+        print(f"Beginning epoch {epoch + 1}")
 
         running_loss = 0.0
 
         for index, (batch, label) in enumerate(loader):
 
-            print(f"Beginning batch {index}")
+            print(f"Beginning batch {index + 1}")
 
             batch = batch.to(device)
             optimizer.zero_grad()
 
-            with autocast():
+            if device.type == 'cuda':
 
+                with autocast():
+
+                    encoded = encoder(batch)
+                    print_memory_usage('Encoded')
+
+                    flattened = flattener(encoded)
+                    print_memory_usage('Flattened')
+
+                    resampled, mu, var = resampler(flattened)
+                    print_memory_usage('Resampled')
+
+                    projected = projector(resampled)
+                    print_memory_usage('Projected')
+
+                    decoded = decoder(projected)
+                    print_memory_usage('Decoded')
+
+                    recon_loss = criterion(decoded, batch)
+                    kl_loss = -0.5 * torch.sum(1 + var - mu.pow(2) - var.exp())  # KL Divergence
+                    loss = recon_loss + kl_loss
+                    running_loss += loss.item()
+
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+
+            else:
                 encoded = encoder(batch)
+                print_memory_usage('Encoded')
+
                 flattened = flattener(encoded)
+                print_memory_usage('Flattened')
+
                 resampled, mu, var = resampler(flattened)
+                print_memory_usage('Resampled')
+
                 projected = projector(resampled)
+                print_memory_usage('Projected')
+
                 decoded = decoder(projected)
+                print_memory_usage('Decoded')
 
                 recon_loss = criterion(decoded, batch)
                 kl_loss = -0.5 * torch.sum(1 + var - mu.pow(2) - var.exp())  # KL Divergence
                 loss = recon_loss + kl_loss
                 running_loss += loss.item()
+                print_memory_usage('Propagated')
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+                loss.backward()
+                optimizer.step()
 
             print(f'[{index + 1}] Loss: {loss.item():.4f}')
 
@@ -141,10 +204,15 @@ if __name__ == '__main__':
                 target_image = reversals(decoded[image].cpu())
                 merged_image = Image.new('RGB', (2048, 1024))
 
-                combined_image.paste(source_image, (0, 0))
-                combined_image.paste(target_image, (1024, 0))
+                merged_image.paste(source_image, (0, 0))
+                merged_image.paste(target_image, (1024, 0))
 
-                filename = f'{epoch:06}-{index:06}-{image:06}-{uuid.uuid4().replace("-", "")}.png'
-                merged_image.save(f'/content/drive/MyDrive/Output/{filename}')
+                filename = f'{epoch:06}-{index:06}-{image:06}-{uuid.uuid4().hex}.png'
+
+                if device.type == 'cuda':
+                    merged_image.save(f'/content/drive/MyDrive/Output/{bid}/{filename}')
+
+                else:
+                    merged_image.save(f'/Users/lucasyoung/Desktop/Art/Output/{bid}/{filename}')
 
         running_loss = 0
