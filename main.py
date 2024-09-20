@@ -108,8 +108,7 @@ if __name__ == '__main__':
                 combined_image.paste(original_image, (0, 0))
                 combined_image.paste(recreated_image, (1024, 0))
 
-                combined_image.save(
-                    f'{epoch:06}-{index:06}-{image:06}-{uuid.uuid4().replace("-", "")}.png'
-                )
+                filename = f'{epoch:06}-{index:06}-{image:06}-{uuid.uuid4().replace("-", "")}.png'
+                combined_image.save(f'/content/drive/MyDrive/Output/{filename}')
 
         running_loss = 0
