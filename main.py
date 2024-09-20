@@ -9,8 +9,8 @@ import torch.optim as optim
 import torch.nn as nn
 import torch
 
-from torch.cuda.amp import autocast
-from torch.cuda.amp import GradScaler
+from torch.amp import autocast
+from torch.amp import GradScaler
 
 from PIL import Image
 
