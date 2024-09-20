@@ -28,10 +28,14 @@ from Networks.Decoder import Decoder
 # -------------------------------------- Configure the System --------------------------------------
 # --------------------------------------------------------------------------------------------------
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
+print(f"Device set to {'cuda' if torch.cuda.is_available() else 'mps'}")
 
 learning_rate = 1e-4
 epochs        = 8
 batch_size    = 2
+print(f"Learning Rate: {learning_rate}")
+print(f"Epochs: {epochs}")
+print(f"Batch Size: {batch_size}")
 
 transform = transforms.Compose([
     transforms.Resize(1024),
@@ -40,10 +44,14 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
+print(f"Transforms compiled: Resize(1024), CenterCrop(1024), ToTensor(), Normalize()")
+
 reversals = transforms.Compose([
     transforms.Normalize((-1, -1, -1), (2, 2, 2)),
     transforms.ToPILImage()
 ])
+
+print(f"Reversals compiled: Normalize(), ToPILImage()")
 
 
 # --------------------------------------------------------------------------------------------------
@@ -52,30 +60,42 @@ reversals = transforms.Compose([
 flattener = Flattener()
 flattener = flattener.to(device)
 flattener.train(True)
+print(f"Flattener compiled")
 
 resampler = Resampler()
 resampler = resampler.to(device)
 resampler.train(True)
+print(f"Resampler compiled")
 
 projector = Projector()
 projector = projector.to(device)
 projector.train(True)
+print(f"Projector compiled")
 
 encoder = Encoder()
 encoder = encoder.to(device)
 encoder.train(True)
+print(f"Encoder compiled")
 
 decoder = Decoder()
 decoder = decoder.to(device)
 decoder.train(True)
+print(f"Decoder compiled")
 
 criterion = nn.MSELoss()
 scaler = GradScaler()
+print(f"Criterion compiled: MSELoss")
+print(f"Scaler compiled")
 
+print("Collecting dataset...")
 dataset = datasets.ImageFolder(root='/content/drive/MyDrive/datasets/dataset', transform=transform)
+print("Dataset collected")
+print("Loading dataset...")
 loader  = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+print("Dataset loaded")
 
 optimizer = optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=learning_rate)
+print(f"Adam compiled")
 
 
 # --------------------------------------------------------------------------------------------------
@@ -85,9 +105,13 @@ if __name__ == '__main__':
 
     for epoch in range(epochs):
 
+        print(f"Beginning epoch {epoch}")
+
         running_loss = 0.0
 
         for index, (batch, label) in enumerate(loader):
+
+            print(f"Beginning batch {index}")
 
             batch = batch.to(device)
             optimizer.zero_grad()
