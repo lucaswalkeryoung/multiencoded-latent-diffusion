@@ -123,6 +123,9 @@ def print_memory_usage(tag: str):
         print(f"[{tag}] Allocated: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
         print(f"[{tag}] Cached: {torch.cuda.memory_reserved() / 1024**3:.2f} GB")
 
+    else:
+        print(f"[{tag}] Allocated: {torch.mps.current_allocated_memory() / 1024 ** 3:.2f} GB")
+        print(f"[{tag}] Reserved: {torch.mps.current_allocated_memory() / 1024 ** 3:.2f} GB")
 
 
 # --------------------------------------------------------------------------------------------------
